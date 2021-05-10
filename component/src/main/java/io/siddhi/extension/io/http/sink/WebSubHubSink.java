@@ -131,7 +131,7 @@ import static org.wso2.carbon.analytics.idp.client.external.ExternalIdPClientCon
 @Extension(name = "websubhub", namespace = "sink",
         description = "" +
                 "WebSubHubEventPublisher publishes messages via HTTP/HTTP according to the provided URL when " +
-                "subscribe to the WebSub hub. The table.name, hub.id and ",
+                "subscribe to the WebSub hub. The table.name, hub.id are mandatory when defining the websubhub source ",
         parameters = {
                 @Parameter(
                         name = "hub.id",
@@ -534,7 +534,7 @@ public class WebSubHubSink extends Sink {
                         if (mapType == null) {
                             mapType = getMapper().getType();
                         }
-                        sendRequest(payload, dynamicOptions, headersList, clientConnector, publisherURL);
+                        sendRequest(payloadMap, dynamicOptions, headersList, clientConnector, publisherURL);
                     } else {
                         log.debug("Added to expired subscription list " + webSubDTO.getCallback() + " : "
                                 + webSubDTO.getTopic());
@@ -701,9 +701,7 @@ public class WebSubHubSink extends Sink {
     String getMessageBody(Object payload) {
         if (HttpConstants.MAP_KEYVALUE.equals(mapType)) {
             Map<String, Object> params = (HashMap) payload;
-            return params.entrySet().stream()
-                    .map(p -> encodeMessage(p.getKey()) + "=" + encodeMessage(p.getValue()))
-                    .reduce("", (p1, p2) -> p1 + "&" + p2);
+            return params.get("payload").toString();
         } else {
             return (String) payload;
         }

@@ -68,20 +68,20 @@ import static io.siddhi.extension.io.http.util.HttpConstants.WEB_SUB_SUBSCRIPTIO
 @Extension(name = "websubhub", namespace = "source",
         description = " WebSub Hub source receive subscription requests via Http and according to the request," +
                 " the subscription details will be saved to the given table and against the callback and topic name. " +
-                "The subscription request  MUST have a Content-Type header of application/x-www-form-urlencoded and " +
-                "following MUST provide as parameter body " +
-                "hub.callback \t - REQUIRED. The subscriber's callback URL where content distribution notifications " +
-                "should be delivered. The callback URL SHOULD be an unguessable URL that is unique per " +
+                "The subscription request  **MUST** have a Content-Type header of " +
+                "**application/x-www-form-urlencoded** and following **MUST** provide as parameter body. \n " +
+                "\t hub.callback \t - REQUIRED.\t The subscriber's callback URL where content distribution " +
+                "notifications should be delivered. The callback URL SHOULD be an unguessable URL that is unique per " +
                 "subscription.\n" +
-                "hub.mode \t - REQUIRED. The literal string \"subscribe\" or \"unsubscribe\", depending on the " +
+                "\t hub.mode \t - REQUIRED.\t The literal string \"subscribe\" or \"unsubscribe\", depending on the " +
                 "goal of the request.\n" +
-                "hub.topic \t - REQUIRED. The topic URL that the subscriber wishes to subscribe to or unsubscribe " +
-                "from.\n " +
-                "hub.lease_seconds\t - OPTIONAL. Number of seconds for which the subscriber would like to have " +
+                "\t hub.topic \t - REQUIRED.\t The topic URL that the subscriber wishes to subscribe to or " +
+                "unsubscribe from.\n " +
+                "\t hub.lease_seconds\t - OPTIONAL.\t Number of seconds for which the subscriber would like to have " +
                 "the subscription active, given as a positive decimal integer. \n" +
-                "hub.secret\t - OPTIONAL. A subscriber-provided cryptographically random unique secret string that " +
-                "will be used to compute an HMAC digest for authorized content distribution. If not supplied, the " +
-                "HMAC digest will not be present for content distribution requests. ",
+                "\t hub.secret\t - OPTIONAL.\t A subscriber-provided cryptographically random unique secret string " +
+                "that will be used to compute an HMAC digest for authorized content distribution. If not supplied, " +
+                "the HMAC digest will not be present for content distribution requests. ",
 
         parameters = {
                 @Parameter(name = "hub.id",
@@ -420,6 +420,7 @@ public class HttpWebSubSource extends Source {
         this.httpConnectorRegistry.registerSourceListener(sourceEventListener, listenerUrl, workerThread, isAuth,
                 requestedTransportPropertyNames, siddhiAppName, metrics, webSubMetaTable, hubId, siddhiAppContext,
                 topics);
+        webSubMetaTable.connectWithRetry();
     }
 
     protected void initConnectorRegistry(OptionHolder optionHolder, ConfigReader configReader) {

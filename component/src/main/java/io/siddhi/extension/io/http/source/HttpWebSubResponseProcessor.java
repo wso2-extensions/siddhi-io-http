@@ -49,6 +49,7 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -135,7 +136,10 @@ public class HttpWebSubResponseProcessor implements Runnable {
                     List<Attribute> attributeList = table.getTableDefinition().getAttributeList();
                     if (payloadMap.get(HUB_MODE).toString().equalsIgnoreCase(HUB_MODE_SUBSCRIBE)) {
                         for (Attribute attribute : attributeList) {
-                            if (attribute.getName().equals(HttpConstants.HUB_ID_COLUMN_NAME)) {
+                            if (attribute.getName().equalsIgnoreCase(HUB_CALLBACK)){
+                                event.add(java.net.URLDecoder.decode(payloadMap.get(attribute.getName()).toString(),
+                                        StandardCharsets.UTF_8.name()));
+                            } else if (attribute.getName().equals(HttpConstants.HUB_ID_COLUMN_NAME)) {
                                 event.add(hubId);
                             } else if (attribute.getName().equals(REQUEST_TIMESTAMP)) {
                                 event.add(System.currentTimeMillis());
@@ -186,7 +190,7 @@ public class HttpWebSubResponseProcessor implements Runnable {
                     logger.debug("Empty payload event, hence dropping the event chunk at source " + sourceID);
                 }
             }
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | UnsupportedEncodingException e) {
             HttpIoUtil.handleFailure(carbonMessage, null, INTERNAL_SERVER_FAIL_CODE, e.getMessage());
             logger.error("Error occurred while processing the payload ", e);
         } finally {
